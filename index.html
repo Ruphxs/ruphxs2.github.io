@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>imbyte.ltd | Coming Soon</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0a0a;
+            color: #e5e5e5;
+            overflow: hidden;
+        }
+        
+        .terminal {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(15, 15, 15, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 30px rgba(0, 255, 200, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .terminal-header {
+            background: linear-gradient(90deg, #1a1a1a, #2a2a2a);
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .terminal-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .terminal-body {
+            padding: 20px;
+            height: 300px;
+            overflow-y: auto;
+        }
+        
+        .command-line {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .prompt {
+            color: #00ffc8;
+            margin-right: 10px;
+        }
+        
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background: #00ffc8;
+            animation: blink 1s infinite;
+            vertical-align: middle;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        .matrix-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+        }
+        
+        .social-icon {
+            transition: all 0.3s ease;
+        }
+        
+        .social-icon:hover {
+            transform: translateY(-3px);
+            color: #00ffc8 !important;
+        }
+        
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 255, 200, 0.3);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+    <canvas id="matrix" class="matrix-bg"></canvas>
+    
+    <div class="w-full max-w-3xl px-4">
+        <div class="terminal">
+            <div class="terminal-header">
+                <div class="terminal-button bg-red-500"></div>
+                <div class="terminal-button bg-yellow-500"></div>
+                <div class="terminal-button bg-green-500"></div>
+                <div class="ml-3 text-sm text-gray-400">terminal — imbyte.ltd</div>
+            </div>
+            
+            <div class="terminal-body">
+                <div class="mb-4 text-green-400">
+                    $ imbyte.ltd --status
+                </div>
+                <div class="mb-6 text-gray-300">
+                    > Status: <span class="text-yellow-400">Under Construction</span>
+                    <br>> ETA: <span class="text-blue-400">Coming Soon</span>
+                    <br>> Message: <span class="text-purple-400">We're building something amazing!</span>
+                </div>
+                
+                <div class="mb-4 text-green-400">
+                    $ whoami
+                </div>
+                <div class="mb-6 text-gray-300">
+                    > imbyte.ltd — Digital Innovation Studio
+                    <br>> Creating next-gen web solutions
+                    <br>> Focused on quality and performance
+                </div>
+                
+                <div class="mb-4 text-green-400">
+                    $ contact --options
+                </div>
+                <div class="mb-6 text-gray-300">
+                    > Email: <span class="text-blue-400">hello@imbyte.ltd</span>
+                    <br>> Social: 
+                    <div class="flex space-x-4 mt-2">
+                        <a href="#" class="social-icon text-gray-400 hover:text-blue-400"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-icon text-gray-400 hover:text-pink-600"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-icon text-gray-400 hover:text-blue-600"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="social-icon text-gray-400 hover:text-gray-800"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+                
+                <div class="command-line">
+                    <span class="prompt">$</span>
+                    <span id="typing-text" class="flex-1"></span>
+                    <span class="cursor"></span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-8 text-center text-gray-500 text-sm">
+            © 2023 imbyte.ltd — All rights reserved
+        </div>
+    </div>
+
+    <script>
+        // Matrix background effect
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
+        const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const nums = '0123456789';
+        const symbols = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~';
+        
+        const alphabet = katakana + latin + nums + symbols;
+        
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        
+        const rainDrops = [];
+        
+        for (let x = 0; x < columns; x++) {
+            rainDrops[x] = 1;
+        }
+        
+        const draw = () => {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#00ffc8';
+            ctx.font = fontSize + 'px monospace';
+            
+            for (let i = 0; i < rainDrops.length; i++) {
+                const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+                ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
+                
+                if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    rainDrops[i] = 0;
+                }
+                rainDrops[i]++;
+            }
+        };
+        
+        setInterval(draw, 30);
+        
+        // Terminal typing effect
+        const phrases = [
+            "We're crafting digital excellence...",
+            "Innovation in progress...",
+            "Building the future...",
+            "Stay tuned for something special...",
+            "Loading awesomeness..."
+        ];
+        
+        let currentPhrase = 0;
+        let currentChar = 0;
+        let isDeleting = false;
+        let isEnd = false;
+        
+        function type() {
+            const typingText = document.getElementById('typing-text');
+            const fullText = phrases[currentPhrase];
+            
+            if (isDeleting) {
+                typingText.textContent = fullText.substring(0, currentChar - 1);
+                currentChar--;
+                
+                if (currentChar === 0) {
+                    isDeleting = false;
+                    currentPhrase++;
+                    if (currentPhrase >= phrases.length) {
+                        currentPhrase = 0;
+                    }
+                }
+            } else {
+                typingText.textContent = fullText.substring(0, currentChar + 1);
+                currentChar++;
+                
+                if (currentChar === fullText.length) {
+                    isEnd = true;
+                    isDeleting = true;
+                }
+            }
+            
+            const speedUp = Math.random() * 50 + 50;
+            const normalSpeed = Math.random() * 150 + 50;
+            const time = isEnd ? 2000 : isDeleting ? speedUp : normalSpeed;
+            
+            setTimeout(type, time);
+        }
+        
+        window.onload = function() {
+            setTimeout(type, 1000);
+            
+            // Make terminal draggable
+            const terminal = document.querySelector('.terminal');
+            let isDragging = false;
+            let offsetX, offsetY;
+            
+            terminal.addEventListener('mousedown', (e) => {
+                if (e.target === terminal || e.target.classList.contains('terminal-header')) {
+                    isDragging = true;
+                    offsetX = e.clientX - terminal.getBoundingClientRect().left;
+                    offsetY = e.clientY - terminal.getBoundingClientRect().top;
+                    terminal.style.cursor = 'grabbing';
+                }
+            });
+            
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                
+                terminal.style.position = 'absolute';
+                terminal.style.left = (e.clientX - offsetX) + 'px';
+                terminal.style.top = (e.clientY - offsetY) + 'px';
+            });
+            
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+                terminal.style.cursor = 'default';
+            });
+        };
+        
+        // Responsive canvas
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+<p style="border-radius: 8px; text-align: center; font-size: 12px; color: #fff; margin-top: 16px;position: fixed; left: 8px; bottom: 8px; z-index: 10; background: rgba(0, 0, 0, 0.8); padding: 4px 8px;">Made with <img src="https://enzostvs-deepsite.hf.space/logo.svg" alt="DeepSite Logo" style="width: 16px; height: 16px; vertical-align: middle;display:inline-block;margin-right:3px;filter:brightness(0) invert(1);"><a href="https://enzostvs-deepsite.hf.space" style="color: #fff;text-decoration: underline;" target="_blank" >DeepSite</a> - <a href="https://enzostvs-deepsite.hf.space?remix=1cent/imbyte-ltd" style="color: #fff;text-decoration: underline;" target="_blank" >🧬 Remix</a></p></body>
+</html>
