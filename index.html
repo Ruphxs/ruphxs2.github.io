@@ -3,37 +3,64 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Guidos Garage - Flip Build Cards</title>
+  <title>Guidos Garage</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Orbitron:wght@500&display=swap');
 
     body {
       margin: 0;
-      font-family: 'Bebas Neue', sans-serif;
       background-color: #0d0d0d;
+      font-family: 'Bebas Neue', sans-serif;
       color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2rem;
     }
 
-    h1 {
-      color: #ff2e2e;
-      font-size: 3rem;
-      margin-bottom: 2rem;
+    /* Navbar */
+    nav {
+      background: linear-gradient(to right, #111, #1a1a1a);
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      padding: 1rem;
+      border-bottom: 2px solid #ff2e2e;
+      font-size: 1.4rem;
       letter-spacing: 2px;
     }
 
+    nav a {
+      color: #ff2e2e;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    nav a:hover {
+      color: #fff;
+      text-shadow: 0 0 10px #ff2e2e;
+    }
+
+    header {
+      text-align: center;
+      font-size: 3rem;
+      color: #ff2e2e;
+      margin: 1.5rem 0;
+      letter-spacing: 3px;
+    }
+
+    section {
+      padding: 2rem;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    /* Builds */
     .garage {
       display: flex;
-      gap: 2rem;
       flex-wrap: wrap;
+      gap: 2rem;
       justify-content: center;
     }
 
     .flip-card {
-      background-color: transparent;
+      background: transparent;
       width: 300px;
       height: 400px;
       perspective: 1000px;
@@ -59,11 +86,11 @@
       backface-visibility: hidden;
       border-radius: 10px;
       overflow: hidden;
-      box-shadow: 0 0 15px rgba(255, 46, 46, 0.3);
+      box-shadow: 0 0 20px rgba(255, 46, 46, 0.4);
     }
 
     .flip-card-front {
-      background-color: #111;
+      background: #111;
     }
 
     .flip-card-front img {
@@ -74,102 +101,198 @@
 
     .flip-card-back {
       background-color: #1a1a1a;
-      color: #fff;
       transform: rotateY(180deg);
       padding: 1rem;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      font-size: 0.9rem;
     }
 
     .flip-card-back h2 {
       color: #ff2e2e;
       font-size: 1.5rem;
-      margin-bottom: 1rem;
     }
 
     .specs {
       font-family: monospace;
-      color: #ddd;
       font-size: 0.85rem;
-      line-height: 1.5;
+      color: #ddd;
+    }
+
+    /* Merch */
+    .merch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+    }
+
+    .merch-item {
+      background: #1a1a1a;
+      border: 2px solid #ff2e2e;
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+      transition: transform 0.3s;
+    }
+
+    .merch-item:hover {
+      transform: scale(1.05);
+    }
+
+    .merch-item img {
+      width: 100%;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+    }
+
+    .merch-item p {
+      font-size: 1rem;
+      color: #ff2e2e;
+    }
+
+    /* Socials */
+    .socials {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+    }
+
+    .social-tile {
+      background: #1a1a1a;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      font-family: 'Orbitron', sans-serif;
+      border: 1px solid #444;
+      text-align: center;
+      color: #ff2e2e;
+      transition: background 0.3s;
+    }
+
+    .social-tile:hover {
+      background: #ff2e2e;
+      color: #0d0d0d;
     }
 
     footer {
-      margin-top: 4rem;
-      color: #888;
+      text-align: center;
       font-size: 0.8rem;
+      color: #aaa;
+      padding: 3rem 1rem;
+      margin-top: 4rem;
+      background-color: #111;
+      border-top: 1px solid #333;
+    }
+
+    @media (max-width: 768px) {
+      .garage, .socials {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      nav {
+        flex-direction: column;
+        gap: 1rem;
+      }
     }
   </style>
 </head>
 <body>
 
-  <h1>GUIDOS GARAGE</h1>
+  <nav>
+    <a href="#builds">Builds</a>
+    <a href="#merch">Merch</a>
+    <a href="#socials">Socials</a>
+  </nav>
 
-  <div class="garage">
+  <header>GUIDOS GARAGE</header>
 
-    <!-- 350Z Build -->
-    <div class="flip-card">
-      <div class="flip-card-inner">
-        <div class="flip-card-front">
-          <img src="https://cdn.pixabay.com/photo/2021/07/24/16/23/nissan-350z-6488095_1280.jpg" alt="Nissan 350Z">
-        </div>
-        <div class="flip-card-back">
-          <h2>Nissan 350Z</h2>
-          <div class="specs">
-            • 420 WHP Twin Turbo<br>
-            • Tein Coilovers / 3.5° Camber<br>
-            • Work Meister S1 Wheels<br>
-            • Bride Low Max Seats<br>
-            • Full aero kit, street drift tuned
+  <section id="builds">
+    <h2 style="color:#fff; text-align:center;">Featured Builds</h2>
+    <div class="garage">
+
+      <!-- 350Z -->
+      <div class="flip-card">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <img src="https://cdn.pixabay.com/photo/2021/07/24/16/23/nissan-350z-6488095_1280.jpg" alt="Nissan 350Z">
+          </div>
+          <div class="flip-card-back">
+            <h2>Nissan 350Z</h2>
+            <div class="specs">
+              • 420 WHP Twin Turbo<br>
+              • Work Meister S1s<br>
+              • Bride Seats / Street Tune
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- 2001 Civic Build -->
-    <div class="flip-card">
-      <div class="flip-card-inner">
-        <div class="flip-card-front">
-          <img src="https://cdn.pixabay.com/photo/2020/12/17/15/23/honda-5837561_1280.jpg" alt="2001 Civic">
-        </div>
-        <div class="flip-card-back">
-          <h2>2001 Civic B18C</h2>
-          <div class="specs">
-            • B18C w/ LSD Transmission<br>
-            • Spoon Header / N1 Exhaust<br>
-            • 15” Regamasters<br>
-            • Hondata S300 / Wire Tuck<br>
-            • OEM+ with JDM soul
+      <!-- Civic -->
+      <div class="flip-card">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <img src="https://cdn.pixabay.com/photo/2020/12/17/15/23/honda-5837561_1280.jpg" alt="Civic B18C">
+          </div>
+          <div class="flip-card-back">
+            <h2>2001 Civic B18C</h2>
+            <div class="specs">
+              • B18C Swap / Spoon Header<br>
+              • 15” Regamasters<br>
+              • Wire Tuck / N1 Exhaust
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- RX-7 Build -->
-    <div class="flip-card">
-      <div class="flip-card-inner">
-        <div class="flip-card-front">
-          <img src="https://cdn.pixabay.com/photo/2020/08/31/21/27/mazda-rx7-5535937_1280.jpg" alt="RX-7 FC3S">
-        </div>
-        <div class="flip-card-back">
-          <h2>Mazda RX-7 FC3S</h2>
-          <div class="specs">
-            • 13B Bridgeported NA<br>
-            • Cusco Cage / Koyo Rad<br>
-            • Watanabe RS Wheels<br>
-            • Screams to 9k RPM<br>
-            • Touge tuned + featherweight
+      <!-- Random Build -->
+      <div class="flip-card">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <img src="https://cdn.pixabay.com/photo/2020/08/31/21/27/mazda-rx7-5535937_1280.jpg" alt="RX-7 FC3S">
+          </div>
+          <div class="flip-card-back">
+            <h2>RX-7 FC3S</h2>
+            <div class="specs">
+              • 13B Bridgeport / Cusco Cage<br>
+              • Watanabe RS Wheels<br>
+              • Screamer Pipe + Touge Built
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-  </div>
+    </div>
+  </section>
+
+  <section id="merch">
+    <h2 style="color:#fff; text-align:center;">Shop Merch</h2>
+    <div class="merch-grid">
+      <div class="merch-item">
+        <img src="https://cdn.pixabay.com/photo/2016/11/29/05/08/tshirt-1866584_1280.png" alt="Tee">
+        <p>Guidos OG Tee</p>
+      </div>
+      <div class="merch-item">
+        <img src="https://cdn.pixabay.com/photo/2016/11/29/03/48/baseball-cap-1866476_1280.png" alt="Cap">
+        <p>Track Cap</p>
+      </div>
+      <div class="merch-item">
+        <img src="https://cdn.pixabay.com/photo/2017/08/05/00/12/hoodie-2581427_1280.png" alt="Hoodie">
+        <p>Garage Hoodie</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="socials">
+    <h2 style="color:#fff; text-align:center;">Follow the Garage</h2>
+    <div class="socials">
+      <a class="social-tile" href="#">Instagram</a>
+      <a class="social-tile" href="#">YouTube</a>
+      <a class="social-tile" href="#">TikTok</a>
+    </div>
+  </section>
 
   <footer>
-    © 2025 Guidos Garage Magazine — Flip into the Future of JDM
+    © 2025 Guidos Garage Magazine — Built by Speed, Fueled by Culture.
   </footer>
 
 </body>
