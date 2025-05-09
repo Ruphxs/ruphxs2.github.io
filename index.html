@@ -3,212 +3,173 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Guidos Garage - JDM Magazine</title>
+  <title>Guidos Garage - Flip Build Cards</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Press+Start+2P&family=Roboto+Mono:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
 
     body {
       margin: 0;
-      font-family: 'Roboto Mono', monospace;
-      background-color: #111;
-      color: #f0f0f0;
-      background-image: url('https://www.transparenttextures.com/patterns/asfalt-light.png');
-    }
-
-    header {
-      background: linear-gradient(to right, #1a1a1a, #000);
-      text-align: center;
-      padding: 2rem 1rem 1rem;
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 4rem;
-      color: #ff2e2e;
-      letter-spacing: 4px;
-      border-bottom: 3px solid #ff2e2e;
-      position: relative;
-    }
-
-    .issue-tag {
-      position: absolute;
-      top: 10px;
-      left: 20px;
-      font-size: 0.8rem;
-      color: #fff;
-      background-color: #ff2e2e;
-      padding: 0.2rem 0.6rem;
-      font-family: 'Press Start 2P', cursive;
-      border-radius: 4px;
-    }
-
-    .sub-header {
-      text-align: center;
-      font-size: 1.2rem;
-      color: #ccc;
-      margin-top: -0.5rem;
-      font-style: italic;
-      font-family: 'Roboto Mono', monospace;
-    }
-
-    nav {
       background-color: #0d0d0d;
-      padding: 1rem;
-      text-align: center;
-      font-family: 'Bebas Neue', sans-serif;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    h1 {
+      color: #ff2e2e;
+      font-size: 3rem;
+      margin-bottom: 2rem;
       letter-spacing: 2px;
     }
 
-    nav a {
-      color: #ff2e2e;
-      text-decoration: none;
-      margin: 0 1rem;
-      font-size: 1.1rem;
-      transition: color 0.3s;
-    }
-
-    nav a:hover {
-      color: #fff;
-    }
-
-    .builds {
+    .garage {
       display: flex;
+      gap: 2rem;
       flex-wrap: wrap;
       justify-content: center;
-      padding: 2rem;
-      gap: 2rem;
     }
 
-    .build {
-      background-color: #1b1b1b;
-      border: 2px solid #2d2d2d;
-      border-radius: 10px;
-      width: 320px;
-      padding: 1rem;
+    .flip-card {
+      background-color: transparent;
+      width: 300px;
+      height: 400px;
+      perspective: 1000px;
+    }
+
+    .flip-card-inner {
       position: relative;
-      box-shadow: 0 0 12px rgba(255, 0, 0, 0.2);
-      transition: transform 0.3s;
-    }
-
-    .build:hover {
-      transform: scale(1.05);
-      border-color: #ff2e2e;
-    }
-
-    .build img {
       width: 100%;
-      border-radius: 6px;
-      filter: saturate(1.1) contrast(1.1);
+      height: 100%;
+      transition: transform 0.8s;
+      transform-style: preserve-3d;
     }
 
-    .build-title {
-      font-size: 1.6rem;
-      margin-top: 1rem;
+    .flip-card:hover .flip-card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .flip-card-front, .flip-card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 0 15px rgba(255, 46, 46, 0.3);
+    }
+
+    .flip-card-front {
+      background-color: #111;
+    }
+
+    .flip-card-front img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .flip-card-back {
+      background-color: #1a1a1a;
+      color: #fff;
+      transform: rotateY(180deg);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      font-size: 0.9rem;
+    }
+
+    .flip-card-back h2 {
       color: #ff2e2e;
-      font-family: 'Bebas Neue', sans-serif;
-      text-transform: uppercase;
-    }
-
-    .build-desc {
-      color: #ddd;
-      margin: 0.5rem 0;
-      font-size: 0.95rem;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
     }
 
     .specs {
+      font-family: monospace;
+      color: #ddd;
       font-size: 0.85rem;
-      background-color: #121212;
-      border: 1px dashed #555;
-      padding: 0.8rem;
-      border-radius: 4px;
-      color: #aaa;
-      font-family: 'Roboto Mono', monospace;
-    }
-
-    .tag {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background-color: #ff2e2e;
-      color: white;
-      font-family: 'Press Start 2P', cursive;
-      font-size: 0.6rem;
-      padding: 0.2rem 0.5rem;
-      border-radius: 3px;
+      line-height: 1.5;
     }
 
     footer {
-      text-align: center;
-      font-size: 0.8rem;
+      margin-top: 4rem;
       color: #888;
-      padding: 2rem;
-      background-color: #0d0d0d;
-      border-top: 2px solid #1a1a1a;
+      font-size: 0.8rem;
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <div class="issue-tag">ISSUE #01</div>
-    GUIDOS GARAGE
-    <div class="sub-header">Retro Boost Culture - Built, Not Bought</div>
-  </header>
+  <h1>GUIDOS GARAGE</h1>
 
-  <nav>
-    <a href="#">HOME</a>
-    <a href="#">FEATURES</a>
-    <a href="#">BUILDS</a>
-    <a href="#">MERCH</a>
-    <a href="#">CONTACT</a>
-  </nav>
+  <div class="garage">
 
-  <section class="builds">
-    <div class="build">
-      <div class="tag">FEATURED</div>
-      <img src="https://cdn.pixabay.com/photo/2021/07/24/16/23/nissan-350z-6488095_1280.jpg" alt="Nissan 350Z" />
-      <div class="build-title">Nissan 350Z</div>
-      <div class="build-desc">
-        Stanced to perfection. Midnight drift tune. Full aero kit and a VQ35 with twin turbos.
-      </div>
-      <div class="specs">
-        • 420 WHP Twin Turbo<br>
-        • Tein Coilovers / 3.5° Camber<br>
-        • Work Meister S1 Wheels<br>
-        • Bride Low Max Seats
+    <!-- 350Z Build -->
+    <div class="flip-card">
+      <div class="flip-card-inner">
+        <div class="flip-card-front">
+          <img src="https://cdn.pixabay.com/photo/2021/07/24/16/23/nissan-350z-6488095_1280.jpg" alt="Nissan 350Z">
+        </div>
+        <div class="flip-card-back">
+          <h2>Nissan 350Z</h2>
+          <div class="specs">
+            • 420 WHP Twin Turbo<br>
+            • Tein Coilovers / 3.5° Camber<br>
+            • Work Meister S1 Wheels<br>
+            • Bride Low Max Seats<br>
+            • Full aero kit, street drift tuned
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="build">
-      <div class="tag">JDM PURE</div>
-      <img src="https://cdn.pixabay.com/photo/2020/12/17/15/23/honda-5837561_1280.jpg" alt="2001 Civic B-Series" />
-      <div class="build-title">2001 Civic (B18C)</div>
-      <div class="build-desc">
-        OEM+ build with hidden muscle. B18C swap, Spoon Sports everything, and wire tuck clean.
-      </div>
-      <div class="specs">
-        • B18C w/ LSD Transmission<br>
-        • Spoon Header / N1 Exhaust<br>
-        • 15” Regamasters / Yokohama A052<br>
-        • Tucked Bay & ECU Hondata V4
+    <!-- 2001 Civic Build -->
+    <div class="flip-card">
+      <div class="flip-card-inner">
+        <div class="flip-card-front">
+          <img src="https://cdn.pixabay.com/photo/2020/12/17/15/23/honda-5837561_1280.jpg" alt="2001 Civic">
+        </div>
+        <div class="flip-card-back">
+          <h2>2001 Civic B18C</h2>
+          <div class="specs">
+            • B18C w/ LSD Transmission<br>
+            • Spoon Header / N1 Exhaust<br>
+            • 15” Regamasters<br>
+            • Hondata S300 / Wire Tuck<br>
+            • OEM+ with JDM soul
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="build">
-      <div class="tag">TOUGE LEGEND</div>
-      <img src="https://cdn.pixabay.com/photo/2020/08/31/21/27/mazda-rx7-5535937_1280.jpg" alt="RX-7 FC" />
-      <div class="build-title">Mazda RX-7 FC3S</div>
-      <div class="build-desc">
-        Lightweight rotary weapon. Classic FC with a bridgeport 13B screaming to 9k on the mountain pass.
-      </div>
-      <div class="specs">
-        • 13B Bridgeported NA<br>
-        • Cusco Roll Cage / Koyo Rad<br>
-        • Watanabe Wheels<br>
-        • Greddy Oil Cooler + LSD
+    <!-- RX-7 Build -->
+    <div class="flip-card">
+      <div class="flip-card-inner">
+        <div class="flip-card-front">
+          <img src="https://cdn.pixabay.com/photo/2020/08/31/21/27/mazda-rx7-5535937_1280.jpg" alt="RX-7 FC3S">
+        </div>
+        <div class="flip-card-back">
+          <h2>Mazda RX-7 FC3S</h2>
+          <div class="specs">
+            • 13B Bridgeported NA<br>
+            • Cusco Cage / Koyo Rad<br>
+            • Watanabe RS Wheels<br>
+            • Screams to 9k RPM<br>
+            • Touge tuned + featherweight
+          </div>
+        </div>
       </div>
     </div>
-  </section>
+
+  </div>
 
   <footer>
-    © 2025 Guidos Garage Magazine - Stay Boosted, Stay Real.
+    © 2025 Guidos Garage Magazine — Flip into the Future of JDM
   </footer>
 
 </body>
