@@ -1,1933 +1,215 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Holographic Terminal</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700&display=swap');
-
-        :root {
-            --primary-color: #00f3ff;
-            --secondary-color: #0575e6;
-            --accent-color: #ff124f;
-            --glow-color: #00f3ff;
-            --bg-color: #030f26;
-            --dark-bg: #010710;
-            --terminal-font: 'Share Tech Mono', monospace;
-            --heading-font: 'Orbitron', sans-serif;
-            --scan-speed: 4s;
-            --boot-time: 4.5s;
-            --flicker-speed: 0.2s;
-            --flicker-intensity: 0.2;
-            --hologram-opacity: 0.85;
-            --glass-effect-blur: 0px;
-            --glass-effect-transparency: rgba(255, 255, 255, 0.05);
-            --cube-rotate-speed: 15s;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background-color: #000;
-            color: var(--primary-color);
-            font-family: var(--terminal-font);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            perspective: 1500px;
-            background: 
-                radial-gradient(circle at 50% 50%, rgba(5, 117, 230, 0.1), transparent 50%),
-                radial-gradient(circle at 85% 30%, rgba(0, 243, 255, 0.15), transparent 33%),
-                radial-gradient(circle at 15% 70%, rgba(255, 18, 79, 0.1), transparent 25%),
-                linear-gradient(to bottom, var(--bg-color) 0%, #000 100%);
-            position: relative;
-        }
-
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-            opacity: 0.07;
-            pointer-events: none;
-        }
-
-        .terminal-container {
-            width: 90%;
-            max-width: 1000px;
-            height: 80vh;
-            position: relative;
-            transform-style: preserve-3d;
-            animation: 
-                bootup var(--boot-time) cubic-bezier(0.2, 0.8, 0.2, 1) 1, 
-                float 10s ease-in-out infinite;
-            transform: rotateX(5deg);
-            will-change: transform;
-        }
-
-        .terminal {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            overflow: hidden;
-            border-radius: 16px;
-            backdrop-filter: none;
-            -webkit-backdrop-filter: none;
-            box-shadow: 
-                0 0 10px var(--glow-color),
-                0 0 30px var(--glow-color),
-                inset 0 0 20px rgba(0, 243, 255, 0.3);
-            background: linear-gradient(135deg, rgba(2, 14, 29, 0.9), rgba(1, 7, 16, 0.95));
-            padding: 25px;
-            display: flex;
-            flex-direction: column;
-            transform-style: preserve-3d;
-            border: 1px solid rgba(0, 243, 255, 0.3);
-            animation: border-pulse 4s infinite alternate;
-        }
-
-        .background-grid {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px) 0 0 / 20px 20px,
-                linear-gradient(0deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px) 0 0 / 20px 20px;
-            pointer-events: none;
-            opacity: 0.4;
-            transform: translateZ(-10px);
-        }
-
-        .terminal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--glow-color);
-            margin-bottom: 20px;
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            position: relative;
-            z-index: 1;
-            font-family: var(--heading-font);
-        }
-
-        .terminal::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            border-radius: 16px;
-            pointer-events: none;
-            background: linear-gradient(45deg, 
-                rgba(0, 243, 255, 0.1) 0%, 
-                rgba(255, 255, 255, 0) 30%, 
-                rgba(255, 255, 255, 0) 70%, 
-                rgba(0, 243, 255, 0.1) 100%);
-        }
-
-        .header-left, .header-right {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .power-btn {
-            width: 18px;
-            height: 18px;
-            background: var(--glow-color);
-            border-radius: 50%;
-            box-shadow: 0 0 10px var(--glow-color), 0 0 20px var(--glow-color);
-            animation: pulse 2s infinite;
-            position: relative;
-            opacity: 0.9;
-        }
-
-        .power-btn::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 8px;
-            height: 8px;
-            background: #fff;
-            border-radius: 50%;
-            filter: none;
-        }
-
-        .terminal-title {
-            letter-spacing: 3px;
-            font-weight: bold;
-            font-size: 1.3rem;
-            color: var(--primary-color);
-            text-shadow: 
-                0 0 5px var(--glow-color),
-                0 0 10px var(--glow-color);
-            animation: text-flicker 5s infinite;
-            transform: translateZ(5px);
-        }
-
-        .timestamp {
-            font-size: 1rem;
-            animation: flicker 3s infinite;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 5px 10px;
-            border-radius: 6px;
-            border: 1px solid rgba(0, 243, 255, 0.2);
-            color: var(--glow-color);
-            display: flex;
-            align-items: center;
-            box-shadow: 0 0 10px rgba(0, 243, 255, 0.1);
-        }
-
-        .screen {
-            position: relative;
-            flex: 1;
-            overflow: hidden;
-            padding-top: 15px;
-            display: flex;
-            flex-direction: column;
-            z-index: 1;
-            background: linear-gradient(135deg, rgba(1, 8, 16, 0.95), rgba(2, 11, 19, 0.9));
-            border-radius: 8px;
-            border: 1px solid rgba(0, 243, 255, 0.1);
-            box-shadow: 
-                inset 0 0 30px rgba(0, 0, 0, 0.5),
-                0 0 10px rgba(0, 243, 255, 0.1);
-            padding: 20px;
-            transform-style: preserve-3d;
-            transform: translateZ(0);
-        }
-
-        .output {
-            flex: 1;
-            overflow-y: auto;
-            padding-right: 15px;
-            color: var(--primary-color);
-            font-size: 1rem;
-            line-height: 1.5;
-            overflow-x: hidden;
-            word-wrap: break-word;
-            text-shadow: 0 0 5px rgba(0, 243, 255, 0.5);
-            scrollbar-width: thin;
-            scrollbar-color: var(--primary-color) rgba(0, 0, 0, 0.2);
-            mask-image: linear-gradient(to bottom, transparent, black 10px, black 90%, transparent 100%);
-            -webkit-mask-image: linear-gradient(to bottom, transparent, black 10px, black 90%, transparent 100%);
-            transform-style: preserve-3d;
-        }
-
-        .output::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .output::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 4px;
-        }
-
-        .output::-webkit-scrollbar-thumb {
-            background: var(--primary-color);
-            border-radius: 4px;
-            box-shadow: 0 0 5px var(--glow-color);
-        }
-
-        .input-line {
-            display: flex;
-            align-items: center;
-            margin-top: 15px;
-            position: relative;
-            z-index: 1;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 8px 15px;
-            border-radius: 8px;
-            border: 1px solid rgba(0, 243, 255, 0.2);
-            box-shadow: 
-                0 0 5px rgba(0, 243, 255, 0.1),
-                inset 0 0 10px rgba(0, 0, 0, 0.3);
-        }
-
-        .prompt {
-            color: var(--glow-color);
-            margin-right: 10px;
-            font-weight: bold;
-            text-shadow: 0 0 5px var(--glow-color);
-            transform: translateZ(2px);
-            font-size: 1.2rem;
-        }
-
-        .input {
-            background: transparent;
-            border: none;
-            flex: 1;
-            color: var(--primary-color);
-            font-family: var(--terminal-font);
-            font-size: 1.05rem;
-            outline: none;
-            text-shadow: 0 0 5px rgba(0, 243, 255, 0.5);
-            caret-color: var(--primary-color);
-        }
-
-        /* Advanced holographic effects */
-        .scan-line {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                to bottom,
-                transparent,
-                rgba(0, 243, 255, 0.05) 50%,
-                transparent
-            );
-            animation: scan var(--scan-speed) linear infinite;
-            pointer-events: none;
-            z-index: 2;
-            opacity: 0.7;
-        }
-
-        .hologram-glow {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0.05;
-            background: 
-                repeating-linear-gradient(
-                    0deg,
-                    var(--glow-color),
-                    var(--glow-color) 1px,
-                    transparent 1px,
-                    transparent 2px
-                );
-            pointer-events: none;
-            z-index: 0;
-            transform: translateZ(-5px);
-        }
-
-        .crt-effect {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
-                linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.03));
-            background-size: 100% 2px, 3px 100%;
-            pointer-events: none;
-            z-index: 2;
-            opacity: 0.4;
-            border-radius: 16px;
-            animation: subtle-move 8s infinite alternate;
-            mix-blend-mode: overlay;
-        }
-
-        .vignette {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(ellipse at center, transparent 60%, rgba(0, 0, 0, 0.5) 100%);
-            pointer-events: none;
-            z-index: 1;
-            border-radius: 16px;
-            opacity: 0.8;
-        }
-
-        .glitch-effect {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: transparent;
-            z-index: 3;
-            pointer-events: none;
-            mix-blend-mode: color-dodge;
-            opacity: 0;
-            animation: random-glitch 10s infinite;
-        }
-
-        .glitch-effect::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(transparent 65%, rgba(0, 243, 255, 0.2) 66%, rgba(0, 243, 255, 0.2) 69%, transparent 70%);
-            filter: none;
-        }
-
-        /* Advanced fallout-style blips */
-        .terminal-decorations {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-            transform-style: preserve-3d;
-        }
-
-        .decoration {
-            position: absolute;
-            width: 8px;
-            height: 8px;
-            background-color: var(--primary-color);
-            border-radius: 50%;
-            opacity: 0.6;
-            animation: blip 4s infinite alternate;
-            box-shadow: 
-                0 0 5px var(--glow-color),
-                0 0 10px var(--glow-color);
-            filter: none;
-        }
-
-        .decoration::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.5);
-            width: 100%;
-            height: 100%;
-            background: #fff;
-            border-radius: 50%;
-            filter: none;
-            opacity: 0.5;
-        }
-
-        .decoration:nth-child(1) { 
-            top: 15%; 
-            left: 7%; 
-            animation-delay: 0.5s; 
-            transform: translateZ(15px);
-        }
-        .decoration:nth-child(2) { 
-            top: 75%; 
-            left: 12%; 
-            animation-delay: 1s; 
-            transform: translateZ(20px);
-        }
-        .decoration:nth-child(3) { 
-            top: 25%; 
-            right: 8%; 
-            animation-delay: 1.5s; 
-            transform: translateZ(10px);
-        }
-        .decoration:nth-child(4) { 
-            top: 85%; 
-            right: 15%; 
-            animation-delay: 2s; 
-            transform: translateZ(30px);
-        }
-        .decoration:nth-child(5) { 
-            top: 12%; 
-            left: 50%; 
-            animation-delay: 2.5s; 
-            transform: translateZ(25px);
-        }
-
-        .data-particles {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            border-radius: 16px;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        .particle {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: var(--primary-color);
-            border-radius: 50%;
-            opacity: 0.7;
-            filter: none;
-            box-shadow: 0 0 3px var(--glow-color);
-            animation: float-particle 15s linear infinite;
-        }
-
-        .cursor {
-            display: inline-block;
-            width: 10px;
-            height: 20px;
-            background-color: var(--primary-color);
-            animation: blink 1s infinite steps(2);
-            vertical-align: middle;
-            box-shadow: 0 0 5px var(--glow-color);
-            border-radius: 1px;
-            margin-left: 5px;
-        }
-
-        /* Key animations */
-        @keyframes bootup {
-            0% { 
-                opacity: 0; 
-                transform: rotateX(30deg) translateY(200px) scale(0.8);
-                filter: brightness(0.3);
-            }
-            30% {
-                opacity: 0.5;
-                filter: brightness(0.6);
-            }
-            70% {
-                filter: brightness(1);
-            }
-            100% { 
-                opacity: 1; 
-                transform: rotateX(5deg) translateY(0) scale(1);
-                filter: brightness(1);
-            }
-        }
-
-        @keyframes scan {
-            0% { transform: translateY(-100%); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(100%); opacity: 0; }
-        }
-
-        @keyframes blink {
-            0%, 49% { opacity: 1; }
-            50%, 100% { opacity: 0.3; }
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(0.97); }
-        }
-
-        @keyframes blip {
-            0%, 80% { 
-                opacity: 0.6; 
-                transform: translateZ(20px) scale(1);
-                box-shadow: 
-                    0 0 5px var(--glow-color),
-                    0 0 10px var(--glow-color);
-            }
-            100% { 
-                opacity: 1; 
-                transform: translateZ(30px) scale(1.5);
-                box-shadow: 
-                    0 0 10px var(--glow-color),
-                    0 0 20px var(--glow-color),
-                    0 0 30px var(--glow-color);
-            }
-        }
-
-        @keyframes flicker {
-            0%, 100% { opacity: 1; }
-            92% { opacity: 0.8; }
-            94% { opacity: 1; }
-            96% { opacity: 0.4; }
-            98% { opacity: 1; }
-        }
-
-        @keyframes text-flicker {
-            0%, 100% { 
-                opacity: 1; 
-                text-shadow: 
-                    0 0 5px var(--glow-color),
-                    0 0 10px var(--glow-color);
-            }
-            95.5% { 
-                opacity: 1; 
-                text-shadow: 
-                    0 0 5px var(--glow-color),
-                    0 0 10px var(--glow-color);
-            }
-            96% { 
-                opacity: 0.6; 
-                text-shadow: none;
-            }
-            96.5% { 
-                opacity: 1; 
-                text-shadow: 
-                    0 0 5px var(--glow-color),
-                    0 0 10px var(--glow-color);
-            }
-        }
-
-        @keyframes float {
-            0%, 100% { transform: rotateX(5deg) translateY(0) rotateZ(0deg); }
-            25% { transform: rotateX(6deg) translateY(-15px) rotateZ(0.5deg); }
-            50% { transform: rotateX(7deg) translateY(-5px) rotateZ(-0.5deg); }
-            75% { transform: rotateX(6deg) translateY(-10px) rotateZ(0.25deg); }
-        }
-
-        @keyframes border-pulse {
-            0%, 100% { border-color: rgba(0, 243, 255, 0.3); }
-            50% { border-color: rgba(0, 243, 255, 0.6); }
-        }
-
-        @keyframes border-glow {
-            0%, 100% { box-shadow: 0 0 20px var(--glow-color), inset 0 0 15px rgba(0, 243, 255, 0.3); }
-            50% { box-shadow: 0 0 30px var(--glow-color), inset 0 0 25px rgba(0, 243, 255, 0.5); }
-        }
-
-        @keyframes corner-glow {
-            0%, 100% { box-shadow: 0 0 10px var(--glow-color); }
-            50% { box-shadow: 0 0 15px var(--glow-color), 0 0 20px var(--glow-color); }
-        }
-
-        @keyframes rotate-cube {
-            0% { transform: rotateX(0) rotateY(0) rotateZ(0); }
-            100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg); }
-        }
-
-        @keyframes random-glitch {
-            0%, 5%, 10%, 15%, 20%, 25%, 30%, 35%, 40%, 45%, 50%, 55%, 60%, 65%, 70%, 75%, 80%, 85%, 90%, 95%, 100% { opacity: 0; }
-            7.5%, 22.5%, 37.5%, 52.5%, 67.5%, 82.5%, 97.5% { opacity: 0.2; }
-        }
-
-        @keyframes float-particle {
-            0% {
-                transform: translate(0, 0) scale(1);
-                opacity: 0;
-            }
-            10% {
-                opacity: 0.7;
-            }
-            90% {
-                opacity: 0.7;
-            }
-            100% {
-                opacity: 0;
-                transform: translate(var(--random-x, 100px), var(--random-y, 100px)) scale(0);
-            }
-        }
-
-        @keyframes subtle-move {
-            0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(1px, 1px); }
-        }
-
-        /* Additional styling for terminal output */
-        .output .command-prompt {
-            color: var(--accent-color);
-            font-weight: bold;
-            margin-right: 8px;
-        }
-
-        .output .highlight {
-            color: #ff9500;
-            font-weight: bold;
-            text-shadow: 0 0 5px rgba(255, 149, 0, 0.7);
-        }
-
-        .output .warning {
-            color: #ff3860;
-            font-weight: bold;
-            text-shadow: 0 0 5px rgba(255, 56, 96, 0.7);
-        }
-
-        .output .success {
-            color: #00d1b2;
-            font-weight: bold;
-            text-shadow: 0 0 5px rgba(0, 209, 178, 0.7);
-        }
-
-        .output .data {
-            color: #209cee;
-            font-family: var(--heading-font);
-            letter-spacing: 1px;
-            font-size: 0.9rem;
-        }
-
-        /* Media queries for responsiveness */
-        @media (max-width: 768px) {
-            .terminal-container {
-                width: 95%;
-                height: 90vh;
-            }
-            
-            .terminal-title {
-                font-size: 1rem;
-            }
-            
-            .corner {
-                width: 20px;
-                height: 20px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .terminal-title {
-                font-size: 0.8rem;
-            }
-            
-            .timestamp {
-                font-size: 0.8rem;
-            }
-            
-            .output {
-                font-size: 0.9rem;
-            }
-        }
-
-        /* 3D Cube Element */
-        .cube-container {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 40px;
-            height: 40px;
-            perspective: 600px;
-            transform-style: preserve-3d;
-            z-index: 4;
-            opacity: 0.7;
-        }
-
-        .cube {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            transform-style: preserve-3d;
-            animation: rotate-cube var(--cube-rotate-speed) infinite linear;
-        }
-
-        .cube-face {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 243, 255, 0.1);
-            border: 1px solid rgba(0, 243, 255, 0.4);
-            box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: var(--heading-font);
-            font-size: 10px;
-            color: var(--primary-color);
-            text-shadow: 0 0 3px var(--glow-color);
-            opacity: 0.8;
-        }
-
-        .face-front { transform: translateZ(20px); }
-        .face-back { transform: rotateY(180deg) translateZ(20px); }
-        .face-right { transform: rotateY(90deg) translateZ(20px); }
-        .face-left { transform: rotateY(-90deg) translateZ(20px); }
-        .face-top { transform: rotateX(90deg) translateZ(20px); }
-        .face-bottom { transform: rotateX(-90deg) translateZ(20px); }
-
-        /* Vault-Tec Style Elements with advanced 3D */
-        .vault-border {
-            position: absolute;
-            top: -20px;
-            left: -20px;
-            right: -20px;
-            bottom: -20px;
-            border: 2px solid var(--primary-color);
-            border-radius: 20px;
-            box-shadow: 
-                0 0 20px var(--glow-color),
-                inset 0 0 15px rgba(0, 243, 255, 0.3);
-            z-index: -1;
-            pointer-events: none;
-            animation: float 10s ease-in-out infinite alternate, border-glow 4s infinite alternate;
-            transform-style: preserve-3d;
-            backdrop-filter: none;
-            background: linear-gradient(135deg, rgba(0, 243, 255, 0.05), transparent 70%);
-            opacity: 0.8;
-        }
-
-        .corner {
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            border: 2px solid var(--glow-color);
-            z-index: 4;
-            box-shadow: 0 0 10px var(--glow-color);
-            animation: corner-glow 3s infinite alternate;
-        }
-
-        .corner-tl {
-            top: -5px;
-            left: -5px;
-            border-right: none;
-            border-bottom: none;
-            border-top-left-radius: 8px;
-        }
-
-        .corner-tr {
-            top: -5px;
-            right: -5px;
-            border-left: none;
-            border-bottom: none;
-            border-top-right-radius: 8px;
-        }
-
-        .corner-bl {
-            bottom: -5px;
-            left: -5px;
-            border-right: none;
-            border-top: none;
-            border-bottom-left-radius: 8px;
-        }
-
-        .corner-br {
-            bottom: -5px;
-            right: -5px;
-            border-left: none;
-            border-top: none;
-            border-bottom-right-radius: 8px;
-        }
-
-        /* Status indicators */
-        .status-lights {
-            display: flex;
-            gap: 15px;
-            margin-right: 15px;
-        }
-
-        .status-light {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            box-shadow: 0 0 5px currentColor;
-            position: relative;
-        }
-
-        .status-light::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.5);
-            width: 100%;
-            height: 100%;
-            background: #fff;
-            border-radius: 50%;
-            filter: blur(1px);
-            opacity: 0.7;
-        }
-
-        .status-green {
-            background-color: #00ff66;
-            color: #00ff66;
-            animation: blink 3s infinite alternate;
-        }
-
-        .status-blue {
-            background-color: var(--primary-color);
-            color: var(--primary-color);
-            animation: blink 4s 0.5s infinite alternate;
-        }
-
-        .status-amber {
-            background-color: #ff9900;
-            color: #ff9900;
-            animation: blink 5s 1s infinite alternate;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Guidos Garage - JDM Magazine</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Press+Start+2P&family=Roboto+Mono:wght@400;700&display=swap');
+
+    body {
+      margin: 0;
+      font-family: 'Roboto Mono', monospace;
+      background-color: #111;
+      color: #f0f0f0;
+      background-image: url('https://www.transparenttextures.com/patterns/asfalt-light.png');
+    }
+
+    header {
+      background: linear-gradient(to right, #1a1a1a, #000);
+      text-align: center;
+      padding: 2rem 1rem 1rem;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 4rem;
+      color: #ff2e2e;
+      letter-spacing: 4px;
+      border-bottom: 3px solid #ff2e2e;
+      position: relative;
+    }
+
+    .issue-tag {
+      position: absolute;
+      top: 10px;
+      left: 20px;
+      font-size: 0.8rem;
+      color: #fff;
+      background-color: #ff2e2e;
+      padding: 0.2rem 0.6rem;
+      font-family: 'Press Start 2P', cursive;
+      border-radius: 4px;
+    }
+
+    .sub-header {
+      text-align: center;
+      font-size: 1.2rem;
+      color: #ccc;
+      margin-top: -0.5rem;
+      font-style: italic;
+      font-family: 'Roboto Mono', monospace;
+    }
+
+    nav {
+      background-color: #0d0d0d;
+      padding: 1rem;
+      text-align: center;
+      font-family: 'Bebas Neue', sans-serif;
+      letter-spacing: 2px;
+    }
+
+    nav a {
+      color: #ff2e2e;
+      text-decoration: none;
+      margin: 0 1rem;
+      font-size: 1.1rem;
+      transition: color 0.3s;
+    }
+
+    nav a:hover {
+      color: #fff;
+    }
+
+    .builds {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 2rem;
+      gap: 2rem;
+    }
+
+    .build {
+      background-color: #1b1b1b;
+      border: 2px solid #2d2d2d;
+      border-radius: 10px;
+      width: 320px;
+      padding: 1rem;
+      position: relative;
+      box-shadow: 0 0 12px rgba(255, 0, 0, 0.2);
+      transition: transform 0.3s;
+    }
+
+    .build:hover {
+      transform: scale(1.05);
+      border-color: #ff2e2e;
+    }
+
+    .build img {
+      width: 100%;
+      border-radius: 6px;
+      filter: saturate(1.1) contrast(1.1);
+    }
+
+    .build-title {
+      font-size: 1.6rem;
+      margin-top: 1rem;
+      color: #ff2e2e;
+      font-family: 'Bebas Neue', sans-serif;
+      text-transform: uppercase;
+    }
+
+    .build-desc {
+      color: #ddd;
+      margin: 0.5rem 0;
+      font-size: 0.95rem;
+    }
+
+    .specs {
+      font-size: 0.85rem;
+      background-color: #121212;
+      border: 1px dashed #555;
+      padding: 0.8rem;
+      border-radius: 4px;
+      color: #aaa;
+      font-family: 'Roboto Mono', monospace;
+    }
+
+    .tag {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: #ff2e2e;
+      color: white;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 0.6rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 3px;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #888;
+      padding: 2rem;
+      background-color: #0d0d0d;
+      border-top: 2px solid #1a1a1a;
+    }
+  </style>
 </head>
 <body>
-    <div class="terminal-container">
-        <div class="terminal">
-            <div class="corner corner-tl"></div>
-            <div class="corner corner-tr"></div>
-            <div class="corner corner-bl"></div>
-            <div class="corner corner-br"></div>
-            
-            <div class="terminal-header">
-                <div class="header-left">
-                    <div class="power-btn"></div>
-                    <div class="terminal-title">VAULT-TEC QUANTUM INTERFACE</div>
-                </div>
-                <div class="header-right">
-                    <div class="status-lights">
-                        <div class="status-light status-green"></div>
-                        <div class="status-light status-blue"></div>
-                        <div class="status-light status-amber"></div>
-                    </div>
-                    <div class="timestamp" id="timestamp">00:00:00</div>
-                </div>
-            </div>
-            
-            <div class="screen">
-                <div id="output" class="output"></div>
-                <div class="input-line">
-                    <span class="prompt">></span>
-                    <input type="text" class="input" id="input" autofocus>
-                    <span class="cursor"></span>
-                </div>
-            </div>
 
-            <div class="cube-container" id="hologram-cube">
-                <div class="cube">
-                    <div class="cube-face face-front">VT</div>
-                    <div class="cube-face face-back">76</div>
-                    <div class="cube-face face-right">QI</div>
-                    <div class="cube-face face-left">AI</div>
-                    <div class="cube-face face-top">OS</div>
-                    <div class="cube-face face-bottom">V3</div>
-                </div>
-            </div>
+  <header>
+    <div class="issue-tag">ISSUE #01</div>
+    GUIDOS GARAGE
+    <div class="sub-header">Retro Boost Culture - Built, Not Bought</div>
+  </header>
 
-            <div class="terminal-decorations">
-                <div class="decoration"></div>
-                <div class="decoration"></div>
-                <div class="decoration"></div>
-                <div class="decoration"></div>
-                <div class="decoration"></div>
-            </div>
-            
-            <div class="data-particles" id="particles"></div>
-            <div class="background-grid"></div>
-            <div class="scan-line"></div>
-            <div class="hologram-glow"></div>
-            <div class="crt-effect"></div>
-            <div class="vignette"></div>
-            <div class="glitch-effect"></div>
-        </div>
-        <div class="vault-border"></div>
+  <nav>
+    <a href="#">HOME</a>
+    <a href="#">FEATURES</a>
+    <a href="#">BUILDS</a>
+    <a href="#">MERCH</a>
+    <a href="#">CONTACT</a>
+  </nav>
+
+  <section class="builds">
+    <div class="build">
+      <div class="tag">FEATURED</div>
+      <img src="https://cdn.pixabay.com/photo/2021/07/24/16/23/nissan-350z-6488095_1280.jpg" alt="Nissan 350Z" />
+      <div class="build-title">Nissan 350Z</div>
+      <div class="build-desc">
+        Stanced to perfection. Midnight drift tune. Full aero kit and a VQ35 with twin turbos.
+      </div>
+      <div class="specs">
+        • 420 WHP Twin Turbo<br>
+        • Tein Coilovers / 3.5° Camber<br>
+        • Work Meister S1 Wheels<br>
+        • Bride Low Max Seats
+      </div>
     </div>
 
-    <script>
-        class QuantumTerminal {
-            constructor() {
-                this.input = document.getElementById('input');
-                this.output = document.getElementById('output');
-                this.timestamp = document.getElementById('timestamp');
-                this.particlesContainer = document.getElementById('particles');
-                this.history = [];
-                this.historyIndex = -1;
-                this.commands = this.initializeCommands();
-                this.securityLevel = "ALPHA";
-                this.terminalId = "VT-QI-" + Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-                
-                // For advanced visual effects
-                this.glitchInterval = null;
-                this.particleCount = 20;
-                this.bootComplete = false;
-                
-                this.setupEventListeners();
-                this.updateTimestamp();
-                this.createParticles();
-                this.startRandomGlitches();
-                this.displayBootSequence();
-            }
+    <div class="build">
+      <div class="tag">JDM PURE</div>
+      <img src="https://cdn.pixabay.com/photo/2020/12/17/15/23/honda-5837561_1280.jpg" alt="2001 Civic B-Series" />
+      <div class="build-title">2001 Civic (B18C)</div>
+      <div class="build-desc">
+        OEM+ build with hidden muscle. B18C swap, Spoon Sports everything, and wire tuck clean.
+      </div>
+      <div class="specs">
+        • B18C w/ LSD Transmission<br>
+        • Spoon Header / N1 Exhaust<br>
+        • 15” Regamasters / Yokohama A052<br>
+        • Tucked Bay & ECU Hondata V4
+      </div>
+    </div>
 
-            setupEventListeners() {
-                // Input handling
-                this.input.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        this.handleCommand();
-                    } else if (e.key === 'ArrowUp') {
-                        e.preventDefault();
-                        this.navigateHistory('up');
-                    } else if (e.key === 'ArrowDown') {
-                        e.preventDefault();
-                        this.navigateHistory('down');
-                    } else if (e.key === 'Tab') {
-                        e.preventDefault();
-                        this.autoComplete();
-                    } else if (e.key === 'c' && e.ctrlKey) {
-                        e.preventDefault();
-                        this.print('> Operation cancelled', 'warning');
-                        this.input.value = '';
-                    }
-                });
-                
-                // Interactive cube
-                const cube = document.querySelector('.cube-container');
-                if (cube) {
-                    cube.addEventListener('mouseenter', () => {
-                        cube.style.animation = 'pulse 1s infinite';
-                    });
-                    
-                    cube.addEventListener('mouseleave', () => {
-                        cube.style.animation = '';
-                    });
-                    
-                    cube.addEventListener('click', () => {
-                        this.triggerSystemScan();
-                    });
-                }
-                
-                // Keep focus on input field
-                document.addEventListener('click', () => {
-                    this.input.focus();
-                });
-                
-                // Update timestamp regularly
-                setInterval(() => this.updateTimestamp(), 1000);
-                
-                // Random ambient sounds for immersion
-                this.setupAmbientSounds();
-            }
+    <div class="build">
+      <div class="tag">TOUGE LEGEND</div>
+      <img src="https://cdn.pixabay.com/photo/2020/08/31/21/27/mazda-rx7-5535937_1280.jpg" alt="RX-7 FC" />
+      <div class="build-title">Mazda RX-7 FC3S</div>
+      <div class="build-desc">
+        Lightweight rotary weapon. Classic FC with a bridgeport 13B screaming to 9k on the mountain pass.
+      </div>
+      <div class="specs">
+        • 13B Bridgeported NA<br>
+        • Cusco Roll Cage / Koyo Rad<br>
+        • Watanabe Wheels<br>
+        • Greddy Oil Cooler + LSD
+      </div>
+    </div>
+  </section>
 
-            updateTimestamp() {
-                const now = new Date();
-                const hours = now.getHours().toString().padStart(2, '0');
-                const minutes = now.getMinutes().toString().padStart(2, '0');
-                const seconds = now.getSeconds().toString().padStart(2, '0');
-                this.timestamp.textContent = `${hours}:${minutes}:${seconds}`;
-            }
+  <footer>
+    © 2025 Guidos Garage Magazine - Stay Boosted, Stay Real.
+  </footer>
 
-            createParticles() {
-                // Clear any existing particles
-                this.particlesContainer.innerHTML = '';
-                
-                // Create floating data particles
-                for (let i = 0; i < this.particleCount; i++) {
-                    const particle = document.createElement('div');
-                    particle.className = 'particle';
-                    
-                    // Random position
-                    const x = Math.random() * 100;
-                    const y = Math.random() * 100;
-                    particle.style.left = `${x}%`;
-                    particle.style.top = `${y}%`;
-                    
-                    // Random animation duration and delay
-                    const duration = 15 + Math.random() * 20;
-                    const delay = Math.random() * 10;
-                    particle.style.animationDuration = `${duration}s`;
-                    particle.style.animationDelay = `${delay}s`;
-                    
-                    // Random movement direction
-                    const randomX = (Math.random() - 0.5) * 200;
-                    const randomY = (Math.random() - 0.5) * 200;
-                    particle.style.setProperty('--random-x', `${randomX}px`);
-                    particle.style.setProperty('--random-y', `${randomY}px`);
-                    
-                    this.particlesContainer.appendChild(particle);
-                }
-            }
-
-            startRandomGlitches() {
-                // Create occasional screen glitches
-                setInterval(() => {
-                    if (!this.bootComplete) return;
-                    
-                    if (Math.random() < 0.1) {
-                        const glitchEffect = document.querySelector('.glitch-effect');
-                        glitchEffect.style.opacity = '0.2';
-                        
-                        setTimeout(() => {
-                            glitchEffect.style.opacity = '0';
-                        }, 150);
-                    }
-                }, 5000);
-            }
-
-            setupAmbientSounds() {
-                // This could be implemented with actual audio files
-                // but for now it's just a placeholder for the concept
-                console.log("Ambient sounds system ready");
-            }
-
-            triggerSystemScan() {
-                this.print('> SYSTEM DIAGNOSTIC INITIATED', 'highlight');
-                
-                setTimeout(() => {
-                    this.print('Scanning system integrity...', 'data');
-                }, 500);
-                
-                setTimeout(() => {
-                    this.print('QUANTUM CORE: OPERATIONAL', 'success');
-                    this.print('NEURAL NETWORKS: STABLE', 'success');
-                    this.print('MEMORY SYSTEMS: 98.7% INTEGRITY', 'success');
-                    this.print('HOLOGRAPHIC PROJECTORS: OPTIMAL', 'success');
-                }, 2000);
-            }
-
-            autoComplete() {
-                const input = this.input.value.trim().toLowerCase();
-                if (!input) return;
-                
-                // Collect all available commands and aliases
-                const availableCommands = [];
-                for (const category in this.commands) {
-                    for (const cmd in this.commands[category]) {
-                        availableCommands.push(cmd);
-                        
-                        // Add aliases to the command list
-                        const command = this.commands[category][cmd];
-                        if (command.aliases) {
-                            availableCommands.push(...command.aliases);
-                        }
-                    }
-                }
-                
-                const matchingCommands = availableCommands.filter(cmd => 
-                    cmd.startsWith(input)
-                );
-                
-                if (matchingCommands.length === 1) {
-                    this.input.value = matchingCommands[0];
-                } else if (matchingCommands.length > 1) {
-                    // Find common prefix
-                    const commonPrefix = this.findCommonPrefix(matchingCommands);
-                    if (commonPrefix.length > input.length) {
-                        this.input.value = commonPrefix;
-                    } else {
-                        this.print('Available commands:');
-                        this.print(matchingCommands.join(', '));
-                    }
-                }
-            }
-            
-            findCommonPrefix(strings) {
-                if (strings.length === 0) return '';
-                if (strings.length === 1) return strings[0];
-                
-                let prefix = strings[0];
-                for (let i = 1; i < strings.length; i++) {
-                    while (strings[i].indexOf(prefix) !== 0) {
-                        prefix = prefix.substring(0, prefix.length - 1);
-                        if (prefix === '') return '';
-                    }
-                }
-                
-                return prefix;
-            }
-
-            displayPrompt() {
-                // Display the command prompt
-                if (!this.prompt) {
-                    this.prompt = '>';
-                }
-            }
-
-            handleCommand() {
-                const command = this.input.value.trim();
-                if (!command) return;
-                
-                // Add to history
-                this.history.push(command);
-                this.historyIndex = this.history.length;
-                
-                // Show command in output with appropriate styling
-                this.print(`<span class="command-prompt">></span> ${command}`);
-                
-                // Process command
-                const commandParts = command.split(' ');
-                const baseCommand = commandParts[0].toLowerCase();
-                const args = commandParts.slice(1);
-                
-                // Add typing sound effect
-                this.playTypingSound();
-                
-                // Execute with a small delay for effect
-                setTimeout(() => {
-                    // Handle game mode separately
-                    if (this.gameActive) {
-                        this.handleGameCommand(command);
-                        // Clear input
-                        this.input.value = '';
-                        return;
-                    }
-                    
-                    // Check hacking game
-                    if (this.hackingGame && this.hackingGame.active) {
-                        this.print(`Command not recognized during hacking attempt. Select a password from the display.`, 'error');
-                        this.input.value = '';
-                        return;
-                    }
-                    
-                    // Search for command in each category
-                    let commandFound = false;
-                    
-                    for (const category in this.commands) {
-                        if (this.commands[category][baseCommand]) {
-                            this.commands[category][baseCommand].execute(args);
-                            commandFound = true;
-                            break;
-                        }
-                        
-                        // Check for aliases
-                        for (const cmd in this.commands[category]) {
-                            const command = this.commands[category][cmd];
-                            if (command.aliases && command.aliases.includes(baseCommand)) {
-                                command.execute(args);
-                                commandFound = true;
-                                break;
-                            }
-                        }
-                        
-                        if (commandFound) break;
-                    }
-                    
-                    if (!commandFound) {
-                        this.print(`Command not found: ${baseCommand}`, 'warning');
-                        
-                        // Suggest similar commands
-                        const similarCommands = this.findSimilarCommands(baseCommand);
-                        if (similarCommands.length > 0) {
-                            this.print(`Did you mean: ${similarCommands.join(', ')}?`);
-                        }
-                    }
-                    
-                    // Clear input
-                    this.input.value = '';
-                    
-                    // Scroll to bottom
-                    this.output.scrollTop = this.output.scrollHeight;
-                    
-                    // Display prompt unless we're in a game or hacking session
-                    if (!this.gameActive && (!this.hackingGame || !this.hackingGame.active)) {
-                        this.displayPrompt();
-                    }
-                }, 100);
-            }
-
-            findSimilarCommands(input) {
-                // Find similar commands across all categories
-                const allCommands = [];
-                for (const category in this.commands) {
-                    for (const cmd in this.commands[category]) {
-                        allCommands.push(cmd);
-                        
-                        // Add aliases to the command list
-                        const command = this.commands[category][cmd];
-                        if (command.aliases) {
-                            allCommands.push(...command.aliases);
-                        }
-                    }
-                }
-                
-                // Return commands that are similar to the input
-                return allCommands.filter(cmd => {
-                    // Commands that start with the same letter
-                    // or have at least half of the characters matching
-                    return cmd[0] === input[0] || 
-                           this.calculateSimilarity(cmd, input) > 0.5;
-                }).slice(0, 3); // Limit to 3 suggestions
-            }
-            
-            calculateSimilarity(str1, str2) {
-                // Convert both strings to lowercase for case-insensitive comparison
-                const s1 = str1.toLowerCase();
-                const s2 = str2.toLowerCase();
-                
-                // Count matching characters
-                let matches = 0;
-                for (let i = 0; i < s1.length; i++) {
-                    if (s2.includes(s1[i])) {
-                        matches++;
-                    }
-                }
-                
-                // Calculate similarity as ratio of matches to maximum length
-                const maxLength = Math.max(s1.length, s2.length);
-                return matches / maxLength;
-            }
-            
-            playTypingSound() {
-                // Placeholder for actual sound implementation
-                // console.log("typing sound");
-            }
-            
-            initializeCommands() {
-                return {
-                    system: {
-                        help: {
-                            description: "Display help information",
-                            usage: "help [command]",
-                            execute: (args) => {
-                                if (args.length === 0) {
-                                    this.print("Available commands:", 'highlight');
-                                    
-                                    const formatCommands = (commands, category) => {
-                                        let output = `<div class="command-category">${category}</div>`;
-                                        output += '<div class="command-grid">';
-                                        
-                                        for (const cmd in commands) {
-                                            output += `<div class="command-item">
-                                                <span class="command-name">${cmd}</span>
-                                                <span class="command-desc">${commands[cmd].description}</span>
-                                            </div>`;
-                                        }
-                                        
-                                        output += '</div>';
-                                        return output;
-                                    };
-                                    
-                                    this.print(formatCommands(this.commands.system, 'SYSTEM COMMANDS'));
-                                    this.print(formatCommands(this.commands.vault, 'VAULT OPERATIONS'));
-                                    this.print(formatCommands(this.commands.advanced, 'ADVANCED FEATURES'));
-                                    
-                                    this.print("\nType 'help [command]' for more information on a specific command.", 'info');
-                                } else {
-                                    const commandName = args[0].toLowerCase();
-                                    
-                                    // Search for the command in all categories
-                                    for (const category in this.commands) {
-                                        if (this.commands[category][commandName]) {
-                                            const cmd = this.commands[category][commandName];
-                                            this.print(`COMMAND: ${commandName.toUpperCase()}`, 'highlight');
-                                            this.print(`Description: ${cmd.description}`);
-                                            this.print(`Usage: ${cmd.usage || commandName}`);
-                                            return;
-                                        }
-                                    }
-                                    
-                                    this.print(`Command '${commandName}' not found. Type 'help' for a list of commands.`, 'error');
-                                }
-                            }
-                        },
-                        clear: {
-                            description: "Clear the terminal screen",
-                            usage: "clear",
-                            execute: () => {
-                                this.output.innerHTML = '';
-                                this.print(`Terminal cleared. ${this.terminalId} ready.`, 'info');
-                            }
-                        },
-                        about: {
-                            description: "Display information about this terminal",
-                            usage: "about",
-                            execute: () => {
-                                this.print(`<div class="about-info">
-                                    <div class="about-title">ROBCO INDUSTRIES (TM) TERMINLINK PROTOCOL</div>
-                                    <div class="about-version">Quantum-Enhanced VAULT-TEC Terminal v7.7.3</div>
-                                    <div class="about-serial">ID: ${this.terminalId}</div>
-                                    <div class="about-desc">Advanced holographic interface with quantum computing capabilities.</div>
-                                    <div class="about-footer">© 2077 ROBCO INDUSTRIES & VAULT-TEC CORPORATION</div>
-                                </div>`);
-                            }
-                        },
-                        date: {
-                            description: "Display current date and time",
-                            usage: "date",
-                            execute: () => {
-                                const now = new Date();
-                                this.print(`Current Date: ${now.toLocaleDateString()}`);
-                                this.print(`Current Time: ${now.toLocaleTimeString()}`);
-                            }
-                        },
-                        echo: {
-                            description: "Display specified text",
-                            usage: "echo [text]",
-                            execute: (args) => {
-                                if (args.length === 0) {
-                                    this.print("Usage: echo [text]", 'info');
-                                    return;
-                                }
-                                this.print(args.join(' '));
-                            }
-                        },
-                        exit: {
-                            description: "Exit current process or session",
-                            usage: "exit",
-                            execute: () => {
-                                if (this.gameActive) {
-                                    this.gameActive = false;
-                                    this.print("Exiting game mode...");
-                                    setTimeout(() => {
-                                        this.print("Game terminated. Returning to terminal.");
-                                        this.displayPrompt();
-                                    }, 1000);
-                                } else if (this.hackingGame && this.hackingGame.active) {
-                                    this.hackingGame.active = false;
-                                    this.print("Hacking attempt aborted", 'warning');
-                                    this.displayPrompt();
-                                } else {
-                                    this.print("No active process to exit.", 'info');
-                                }
-                            }
-                        }
-                    },
-                    vault: {
-                        status: {
-                            description: "Display system status information",
-                            usage: "status",
-                            execute: () => {
-                                const statuses = [
-                                    { name: "Core Systems", value: "Operational", color: "green" },
-                                    { name: "Security Level", value: this.securityLevel, color: "yellow" },
-                                    { name: "Memory Modules", value: "87% Optimal", color: "green" },
-                                    { name: "Quantum Processor", value: "Online", color: "green" },
-                                    { name: "External Network", value: "Disconnected", color: "red" },
-                                    { name: "Power Supply", value: "Stable (Reserve: 94%)", color: "green" },
-                                    { name: "Radiation Levels", value: "12 mR/hr (Safe)", color: "yellow" }
-                                ];
-                                
-                                this.print(`SYSTEM STATUS:`, 'highlight');
-                                
-                                // Create a status table
-                                let statusOutput = '<div class="status-table">';
-                                statuses.forEach(status => {
-                                    statusOutput += `<div class="status-row">
-                                        <span class="status-name">${status.name}</span>
-                                        <span class="status-value" style="color: var(--${status.color})">${status.value}</span>
-                                    </div>`;
-                                });
-                                statusOutput += '</div>';
-                                
-                                this.print(statusOutput);
-                                
-                                // Simulate scanning effect
-                                this.systemScan();
-                                
-                                setTimeout(() => {
-                                    this.print("All systems within acceptable parameters.", "info");
-                                }, 2000);
-                            }
-                        },
-                        vault: {
-                            description: "Display vault information",
-                            usage: "vault",
-                            execute: () => {
-                                this.print("VAULT-TEC FACILITY STATUS:", 'highlight');
-                                this.print(`<div class="vault-status">
-                                    <div class="vault-header">VAULT 76</div>
-                                    <div class="vault-desc">Designed to house 500 occupants</div>
-                                    <div class="vault-info">
-                                        <div>Current Population: 0</div>
-                                        <div>Air Filtration: Operational</div>
-                                        <div>Water Purification: Operational</div>
-                                        <div>Food Reserves: 83% Capacity</div>
-                                        <div>Main Door: Sealed</div>
-                                        <div>Mainframe Connection: Active</div>
-                                    </div>
-                                    <div class="vault-footer">Reclamation Day Status: COMPLETE</div>
-                                </div>`);
-                            }
-                        },
-                        scan: {
-                            description: "Scan for nearby entities",
-                            usage: "scan",
-                            execute: () => {
-                                this.print("Initiating environmental scan...", 'info');
-                                
-                                // Simulate scan progress
-                                const scanSteps = ["Initializing sensors", "Calibrating parameters", "Collecting data", "Processing results"];
-                                let stepIndex = 0;
-                                
-                                const scanInterval = setInterval(() => {
-                                    if (stepIndex < scanSteps.length) {
-                                        this.print(`${scanSteps[stepIndex]} ...`);
-                                        stepIndex++;
-                                    } else {
-                                        clearInterval(scanInterval);
-                                        
-                                        // Show scan results
-                                        setTimeout(() => {
-                                            this.print("SCAN COMPLETE", 'success');
-                                            this.print(`<div class="scan-results">
-                                                <div class="scan-category">Lifeforms Detected:</div>
-                                                <div class="scan-item">Human: 1 (Terminal Operator)</div>
-                                                <div class="scan-item">Fauna: 0</div>
-                                                <div class="scan-item">Flora: 0</div>
-                                                
-                                                <div class="scan-category">Environmental Conditions:</div>
-                                                <div class="scan-item">Temperature: 22.3°C (72.1°F)</div>
-                                                <div class="scan-item">Humidity: 34%</div>
-                                                <div class="scan-item">Oxygen Level: 20.9% (Normal)</div>
-                                                <div class="scan-item">Radiation: 0.11 mR/hr (Background)</div>
-                                                
-                                                <div class="scan-category">Technology:</div>
-                                                <div class="scan-item">Power Sources: 1</div>
-                                                <div class="scan-item">Computing Devices: 1</div>
-                                                <div class="scan-item">Wireless Signals: ${Math.floor(Math.random() * 10) + 2}</div>
-                                            </div>`);
-                                        }, 500);
-                                    }
-                                }, 700);
-                            }
-                        },
-                        rad: {
-                            description: "Check radiation levels",
-                            usage: "rad",
-                            execute: () => {
-                                this.print("RADIATION ASSESSMENT:", 'highlight');
-                                const currentLevel = 0.12;
-                                const dangerLevel = currentLevel > 1 ? 'WARNING' : 'SAFE';
-                                const levelClass = currentLevel > 1 ? 'warning' : 'success';
-                                
-                                this.print(`Current Radiation Level: <span class="${levelClass}">${currentLevel} mR/hr</span>`);
-                                this.print(`Status: <span class="${levelClass}">${dangerLevel}</span>`);
-                                this.print(`Exposure Limit: 5.0 mR/hr`);
-                                
-                                // Visualize the radiation level
-                                const percentage = Math.min(100, (currentLevel / 5) * 100);
-                                this.print(`<div class="rad-meter">
-                                    <div class="rad-level" style="width: ${percentage}%"></div>
-                                </div>`);
-                                
-                                this.print(`Analysis: No immediate radiation hazard detected.`);
-                            }
-                        },
-                        inventory: {
-                            description: "View inventory manifest",
-                            usage: "inventory",
-                            execute: () => {
-                                this.print("INVENTORY MANIFEST:", 'highlight');
-                                
-                                const categories = [
-                                    {
-                                        name: "Medical Supplies",
-                                        items: [
-                                            {name: "Stimpak", count: 12},
-                                            {name: "RadAway", count: 8},
-                                            {name: "Med-X", count: 5},
-                                            {name: "Blood Pack", count: 3}
-                                        ]
-                                    },
-                                    {
-                                        name: "Consumables",
-                                        items: [
-                                            {name: "Purified Water", count: 24},
-                                            {name: "Nuka-Cola", count: 6},
-                                            {name: "Salisbury Steak", count: 8},
-                                            {name: "Sugar Bombs", count: 4}
-                                        ]
-                                    },
-                                    {
-                                        name: "Equipment",
-                                        items: [
-                                            {name: "10mm Rounds", count: 86},
-                                            {name: "Fusion Cell", count: 23},
-                                            {name: "Hazmat Suit", count: 1},
-                                            {name: "Repair Kit", count: 3}
-                                        ]
-                                    }
-                                ];
-                                
-                                // Create an inventory display
-                                let inventoryOutput = '<div class="inventory-display">';
-                                
-                                categories.forEach(category => {
-                                    inventoryOutput += `<div class="inventory-category">${category.name}</div>`;
-                                    inventoryOutput += `<div class="inventory-grid">`;
-                                    
-                                    category.items.forEach(item => {
-                                        inventoryOutput += `<div class="inventory-item">
-                                            <div class="item-name">${item.name}</div>
-                                            <div class="item-count">${item.count}</div>
-                                        </div>`;
-                                    });
-                                    
-                                    inventoryOutput += `</div>`;
-                                });
-                                
-                                inventoryOutput += '</div>';
-                                this.print(inventoryOutput);
-                            }
-                        }
-                    },
-                    advanced: {
-                        encrypt: {
-                            description: "Encrypt a text message using Caesar cipher",
-                            usage: "encrypt [text]",
-                            execute: (args) => {
-                                if (args.length === 0) {
-                                    this.print("Usage: encrypt [text]", 'info');
-                                    return;
-                                }
-                                
-                                const text = args.join(' ');
-                                let encrypted = '';
-                                
-                                // Simple Caesar cipher with shift of 3
-                                for (let i = 0; i < text.length; i++) {
-                                    let char = text[i];
-                                    
-                                    if (/[a-zA-Z]/.test(char)) {
-                                        const code = text.charCodeAt(i);
-                                        if ((code >= 65) && (code <= 90)) {
-                                            // Uppercase letters
-                                            char = String.fromCharCode(((code - 65 + 3) % 26) + 65);
-                                        } else if ((code >= 97) && (code <= 122)) {
-                                            // Lowercase letters
-                                            char = String.fromCharCode(((code - 97 + 3) % 26) + 97);
-                                        }
-                                    }
-                                    
-                                    encrypted += char;
-                                }
-                                
-                                this.print(`Original: ${text}`);
-                                this.print(`Encrypted: <span class="encrypted">${encrypted}</span>`);
-                            }
-                        },
-                        decrypt: {
-                            description: "Decrypt a Caesar cipher encrypted message",
-                            usage: "decrypt [text]",
-                            execute: (args) => {
-                                if (args.length === 0) {
-                                    this.print("Usage: decrypt [text]", 'info');
-                                    return;
-                                }
-                                
-                                const text = args.join(' ');
-                                let decrypted = '';
-                                
-                                // Simple Caesar cipher with shift of -3
-                                for (let i = 0; i < text.length; i++) {
-                                    let char = text[i];
-                                    
-                                    if (/[a-zA-Z]/.test(char)) {
-                                        const code = text.charCodeAt(i);
-                                        if ((code >= 65) && (code <= 90)) {
-                                            // Uppercase letters
-                                            char = String.fromCharCode(((code - 65 - 3 + 26) % 26) + 65);
-                                        } else if ((code >= 97) && (code <= 122)) {
-                                            // Lowercase letters
-                                            char = String.fromCharCode(((code - 97 - 3 + 26) % 26) + 97);
-                                        }
-                                    }
-                                    
-                                    decrypted += char;
-                                }
-                                
-                                this.print(`Encrypted: ${text}`);
-                                this.print(`Decrypted: <span class="decrypted">${decrypted}</span>`);
-                            }
-                        },
-                        hack: {
-                            description: "Start hacking simulation",
-                            usage: "hack",
-                            execute: (args) => {
-                                const attempts = 4;
-                                const words = [
-                                    'SECURE', 'ACCESS', 'CIPHER', 'LOCKED', 
-                                    'SYSTEM', 'BREACH', 'SAFETY', 'HASHED',
-                                    'THREAT', 'KEEPER', 'PRISON', 'SHADOW'
-                                ];
-                                
-                                // Pick a random word as the password
-                                const password = words[Math.floor(Math.random() * words.length)];
-                                const displayWords = this.shuffleWords([...words], password);
-                                
-                                this.print("ROBCO INDUSTRIES (TM) TERMLINK PROTOCOL", 'highlight');
-                                this.print("ENTER PASSWORD NOW");
-                                this.print(`<div class="attempts">ATTEMPTS REMAINING: <span class="attempt-count">${attempts}</span></div>`);
-                                
-                                // Display memory dump with words
-                                let hexOutput = '<div class="memory-dump">';
-                                
-                                // Create memory addresses
-                                for (let i = 0; i < 16; i++) {
-                                    const address = (0xF000 + (i * 0x10)).toString(16).toUpperCase();
-                                    hexOutput += `<div class="memory-row">`;
-                                    hexOutput += `<span class="memory-address">${address}</span>`;
-                                    
-                                    // Random hex characters as filler
-                                    let rowContent = '';
-                                    for (let j = 0; j < 12; j++) {
-                                        rowContent += this.getRandomHexChar();
-                                    }
-                                    
-                                    // Insert words if this row should have one
-                                    if (i < displayWords.length) {
-                                        // Insert the word at a random position
-                                        const insertPos = Math.floor(Math.random() * (12 - displayWords[i].length));
-                                        rowContent = rowContent.substring(0, insertPos) + 
-                                                   `<span class="hack-word" data-word="${displayWords[i]}">${displayWords[i]}</span>` + 
-                                                   rowContent.substring(insertPos + displayWords[i].length);
-                                    }
-                                    
-                                    hexOutput += rowContent;
-                                    hexOutput += `</div>`;
-                                }
-                                
-                                hexOutput += '</div>';
-                                this.print(hexOutput);
-                                
-                                // Initialize the hacking minigame data
-                                this.hackingGame = {
-                                    password: password,
-                                    attempts: attempts,
-                                    active: true
-                                };
-                                
-                                // Add event listeners for the hack words
-                                setTimeout(() => {
-                                    const hackWords = document.querySelectorAll('.hack-word');
-                                    hackWords.forEach(word => {
-                                        word.addEventListener('click', () => {
-                                            if (!this.hackingGame.active) return;
-                                            
-                                            const selected = word.dataset.word;
-                                            this.playTypingSound();
-                                            
-                                            if (selected === this.hackingGame.password) {
-                                                this.print(`> ${selected}`, 'user');
-                                                this.print("Password accepted.", 'success');
-                                                this.print("Access granted to VAULT-TEC main database.");
-                                                this.hackingGame.active = false;
-                                            } else {
-                                                this.print(`> ${selected}`, 'user');
-                                                this.hackingGame.attempts--;
-                                                
-                                                // Calculate likeness (matching characters in same position)
-                                                let likeness = 0;
-                                                for (let i = 0; i < selected.length; i++) {
-                                                    if (i < this.hackingGame.password.length && 
-                                                        selected[i] === this.hackingGame.password[i]) {
-                                                        likeness++;
-                                                    }
-                                                }
-                                                
-                                                this.print(`Entry denied. Likeness=${likeness}.`, 'error');
-                                                document.querySelector('.attempt-count').textContent = this.hackingGame.attempts;
-                                                
-                                                if (this.hackingGame.attempts <= 0) {
-                                                    this.print("TERMINAL LOCKED", 'error');
-                                                    this.print("Too many incorrect password attempts.");
-                                                    this.print(`The correct password was: ${this.hackingGame.password}`);
-                                                    this.hackingGame.active = false;
-                                                }
-                                            }
-                                        });
-                                    });
-                                }, 100);
-                            }
-                        },
-                        game: {
-                            description: "Start text adventure game",
-                            usage: "game",
-                            aliases: ["play", "adventure"],
-                            execute: () => {
-                                this.print("ROBCO INDUSTRIES (TM) ENTERTAINMENT PROTOCOL", 'highlight');
-                                this.print("Starting Text Adventure Module...");
-                                
-                                setTimeout(() => {
-                                    this.print(`<div class="game-intro">
-                                        <div class="game-title">VAULT EXPLORER</div>
-                                        <div class="game-desc">You awaken in an abandoned Vault. Your mission: find a way out.</div>
-                                    </div>`);
-                                    
-                                    setTimeout(() => {
-                                        this.startGame();
-                                    }, 1000);
-                                }, 1000);
-                            }
-                        },
-                        matrix: {
-                            description: "Run Matrix visualization",
-                            usage: "matrix",
-                            execute: () => {
-                                this.print("Initializing Matrix Protocol...", 'highlight');
-                                
-                                setTimeout(() => {
-                                    let output = '<div id="matrix-container" class="matrix-effect">';
-                                    const columns = 40;
-                                    const rows = 15;
-                                    
-                                    for (let i = 0; i < rows; i++) {
-                                        let row = '';
-                                        for (let j = 0; j < columns; j++) {
-                                            const char = String.fromCharCode(33 + Math.floor(Math.random() * 93));
-                                            const delay = Math.random() * 5;
-                                            const opacity = Math.random() * 0.5 + 0.5;
-                                            row += `<span class="matrix-char" style="animation-delay: ${delay}s; opacity: ${opacity}">${char}</span>`;
-                                        }
-                                        output += `<div class="matrix-row">${row}</div>`;
-                                    }
-                                    
-                                    output += '</div>';
-                                    this.print(output);
-                                    
-                                    // Start the matrix animation
-                                    setTimeout(() => {
-                                        this.matrixAnimation = setInterval(() => {
-                                            const chars = document.querySelectorAll('.matrix-char');
-                                            chars.forEach(char => {
-                                                if (Math.random() > 0.9) {
-                                                    char.textContent = String.fromCharCode(33 + Math.floor(Math.random() * 93));
-                                                }
-                                            });
-                                        }, 100);
-                                        
-                                        // Stop after 15 seconds
-                                        setTimeout(() => {
-                                            clearInterval(this.matrixAnimation);
-                                            this.print("Matrix Protocol terminated.", 'info');
-                                        }, 15000);
-                                    }, 500);
-                                }, 1000);
-                            }
-                        },
-                        diagnostic: {
-                            description: "Run system diagnostic",
-                            usage: "diagnostic",
-                            aliases: ["diag", "test"],
-                            execute: () => {
-                                this.triggerSystemScan();
-                            }
-                        }
-                    }
-                };
-            }
-
-            print(text, className = '') {
-                if (!text && text !== '') return;
-                
-                const lines = text.toString().split('\n');
-                for (const line of lines) {
-                    const div = document.createElement('div');
-                    div.innerHTML = line; // Use innerHTML to support HTML formatting
-                    if (className) div.classList.add(className);
-                    this.output.appendChild(div);
-                }
-                this.output.scrollTop = this.output.scrollHeight;
-                
-                // Clean up output if it gets too long (performance optimization)
-                this.cleanOutput();
-            }
-
-            cleanOutput() {
-                // Keep the number of elements manageable
-                while (this.output.childElementCount > 500) {
-                    this.output.removeChild(this.output.firstChild);
-                }
-            }
-
-            navigateHistory(direction) {
-                if (direction === 'up' && this.historyIndex > 0) {
-                    this.historyIndex--;
-                    this.input.value = this.history[this.historyIndex];
-                } else if (direction === 'down' && this.historyIndex < this.history.length - 1) {
-                    this.historyIndex++;
-                    this.input.value = this.history[this.historyIndex];
-                } else if (direction === 'down' && this.historyIndex === this.history.length - 1) {
-                    this.historyIndex = this.history.length;
-                    this.input.value = '';
-                }
-            }
-
-            displayBootSequence() {
-                this.printWithTypeEffect('VAULT-TEC QUANTUM INTERFACE', 30);
-                setTimeout(() => this.printWithTypeEffect('COPYRIGHT 2077-2082 VAULT-TEC ADVANCED SYSTEMS', 20), 800);
-                setTimeout(() => this.printWithTypeEffect('================================================', 5), 1600);
-                
-                setTimeout(() => {
-                    this.printWithTypeEffect('INITIALIZING QUANTUM BOOT SEQUENCE...', 15);
-                }, 2000);
-                
-                setTimeout(() => {
-                    this.printWithTypeEffect('CHECKING MEMORY INTEGRITY..............VERIFIED', 10);
-                }, 3000);
-                
-                setTimeout(() => {
-                    this.printWithTypeEffect('INITIALIZING HOLOGRAPHIC INTERFACE...', 15);
-                }, 4000);
-                
-                setTimeout(() => {
-                    this.printWithTypeEffect('CALIBRATING QUANTUM PROJECTION MATRIX.........COMPLETE', 10);
-                }, 5000);
-                
-                setTimeout(() => {
-                    this.printWithTypeEffect('LOADING NEURAL NETWORK ALGORITHMS...COMPLETE', 10);
-                }, 6000);
-
-                setTimeout(() => {
-                    this.printWithTypeEffect('CHECKING RADIATION LEVELS..........NOMINAL', 10);
-                }, 7000);
-                
-                setTimeout(() => {
-                    this.printWithTypeEffect('ESTABLISHING SECURE VAULT NETWORK.......ACTIVE', 10);
-                }, 8000);
-                
-                setTimeout(() => {
-                    this.print('');
-                    this.printWithTypeEffect('SYSTEM READY', 50, 'success');
-                    this.print('');
-                    this.printWithTypeEffect(`TERMINAL ID: ${this.terminalId}`, 20, 'data');
-                    this.printWithTypeEffect(`SECURITY CLEARANCE: ${this.securityLevel}`, 20, 'data');
-                    this.print('');
-                    this.printWithTypeEffect('Welcome to VAULT-TEC QUANTUM INTERFACE', 15);
-                    this.printWithTypeEffect('Type "help" for available commands.', 15);
-                    this.print('');
-                    
-                    // Signal boot completion
-                    this.bootComplete = true;
-                }, 9000);
-            }
-
-            printWithTypeEffect(text, speed = 20, className = '') {
-                let index = 0;
-                const div = document.createElement('div');
-                if (className) div.classList.add(className);
-                this.output.appendChild(div);
-                
-                const typeInterval = setInterval(() => {
-                    // Add one character at a time
-                    div.textContent = text.substring(0, index++);
-                    
-                    // Complete effect when all characters are typed
-                    if (index > text.length) {
-                        clearInterval(typeInterval);
-                        
-                        // Add a small random glitch chance
-                        if (Math.random() < 0.3) {
-                            setTimeout(() => {
-                                div.textContent = text.substring(0, Math.ceil(text.length * 0.8));
-                                setTimeout(() => {
-                                    div.textContent = text;
-                                }, 50);
-                            }, 30);
-                        }
-                    }
-                    
-                    this.output.scrollTop = this.output.scrollHeight;
-                }, speed);
-            }
-
-            displayGameLocation() {
-                const location = this.gameLocations[this.gameState.location];
-                
-                if (!location) {
-                    this.print(`ERROR: Location ${this.gameState.location} does not exist!`, 'error');
-                    return;
-                }
-                
-                this.print(`<span class="location-name">${location.name}</span>`, 'location-header');
-                this.print(location.description);
-                
-                // List exits
-                if (location.exits && Object.keys(location.exits).length > 0) {
-                    this.print("Exits:", 'section-header');
-                    for (const dir in location.exits) {
-                        this.print(`- ${dir}`, 'exit');
-                    }
-                }
-                
-                // List items
-                if (location.items && location.items.length > 0) {
-                    this.print("You see:", 'section-header');
-                    for (const item of location.items) {
-                        this.print(`- ${item}`, 'item');
-                    }
-                }
-            }
-        }
-
-        // Initialize terminal when page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            window.terminal = new QuantumTerminal();
-        });
-    </script>
 </body>
 </html>
