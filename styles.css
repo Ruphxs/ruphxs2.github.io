@@ -1,1 +1,83 @@
-a
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #111;
+  font-family: 'Courier New', monospace;
+  overflow: hidden;
+}
+
+#background {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: url('https://i.imgur.com/XYwnT9U.jpg') no-repeat center center/cover;
+  filter: grayscale(70%) brightness(0.3);
+  z-index: 0;
+}
+
+.terminal-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  z-index: 1;
+  position: relative;
+}
+
+.screen {
+  width: 700px;
+  height: 500px;
+  background-color: #fefde8;
+  border: 8px solid #c3c3c3;
+  box-shadow: 0 0 80px #0f0;
+  position: relative;
+  padding: 20px;
+  overflow: hidden;
+}
+
+.boot-text {
+  color: #0f0;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.vault-ui {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.85);
+  color: #39ff14;
+  font-family: 'Courier New', Courier, monospace;
+  animation: fadeIn 3s forwards;
+}
+
+.vault-ui h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.vault-ui ul {
+  list-style: none;
+  padding: 0;
+}
+
+.vault-ui li {
+  margin-bottom: 12px;
+  font-size: 18px;
+}
+
+.hidden {
+  display: none;
+}
+
+#matrix {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  pointer-events: none;
+  z-index: 1;
+}
