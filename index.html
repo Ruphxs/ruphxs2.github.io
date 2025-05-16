@@ -1,12 +1,36 @@
-<!-- public/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mathjam Landscaping</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Booting Portfolio Terminal</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div id="root"></div>
+  <div id="background"></div>
+
+  <div class="terminal-container">
+    <div class="screen">
+      <div id="matrix"></div>
+      <div class="boot-text">
+        <p>> Booting Old-Terminal OS...</p>
+        <p>> Loading user profile...</p>
+        <p>> Initializing Vault Interface...</p>
+        <p>> Welcome back, <strong>Colby</strong>.</p>
+        <p>> Entering PORTFOLIO MODE...</p>
+      </div>
+      <div class="vault-ui hidden">
+        <h1>PIP-PORT // Inventory</h1>
+        <ul>
+          <li><strong>[PROJECT]</strong> Terminal Hacking Simulator</li>
+          <li><strong>[EXPERIENCE]</strong> CyberSec Student – NSCC</li>
+          <li><strong>[SKILLS]</strong> C, Python, Networking, Linux</li>
+          <li><strong>[CONTACT]</strong> niedzielski.colby@example.com</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
