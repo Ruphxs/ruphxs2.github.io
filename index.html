@@ -3,34 +3,102 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Booting Portfolio Terminal</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>Guidos Garage | Sydney NS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: 'Oswald', sans-serif;
+    }
+    .jdm-accent {
+      letter-spacing: 2px;
+      border-bottom: 2px solid white;
+      padding-bottom: 4px;
+    }
+  </style>
 </head>
-<body>
-  <div id="background"></div>
+<body class="text-white">
 
-  <div class="terminal-container">
-    <div class="screen">
-      <div id="matrix"></div>
-      <div class="boot-text">
-        <p>> Booting Old-Terminal OS...</p>
-        <p>> Loading user profile...</p>
-        <p>> Initializing Vault Interface...</p>
-        <p>> Welcome back, <strong>Colby</strong>.</p>
-        <p>> Entering PORTFOLIO MODE...</p>
+  <!-- Header -->
+  <header class="text-center py-6 border-b border-gray-700">
+    <h1 class="text-4xl font-bold uppercase jdm-accent">Guidos Garage</h1>
+    <p class="text-sm mt-2 text-gray-400">JDM-Driven Repairs • Mods • Merch • Sydney, Nova Scotia</p>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="text-center py-12 px-4">
+    <h2 class="text-3xl md:text-5xl font-bold uppercase">Built Not Bought</h2>
+    <p class="mt-4 text-gray-300 max-w-xl mx-auto">Performance tuning, custom builds, and reliable service — all under one hood.</p>
+    <a href="#book" class="mt-6 inline-block px-6 py-3 border border-white uppercase tracking-widest hover:bg-white hover:text-black transition">Book a Repair</a>
+  </section>
+
+  <!-- Our Cars -->
+  <section class="py-12 px-4 bg-gray-900" id="ourcars">
+    <h2 class="text-2xl uppercase jdm-accent text-center mb-10">Our Cars</h2>
+    <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+      <div class="bg-black p-4 border border-gray-700 rounded shadow">
+        <img src="https://via.placeholder.com/600x300?text=2009+Civic+Si+FBO" alt="2009 Civic Si" class="w-full mb-4">
+        <h3 class="text-xl font-bold">2009 Honda Civic Si – FBO</h3>
+        <p class="text-gray-400">Full bolt-ons, tuned, daily driven and track ready.</p>
       </div>
-      <div class="vault-ui hidden">
-        <h1>PIP-PORT // Inventory</h1>
-        <ul>
-          <li><strong>[PROJECT]</strong> Terminal Hacking Simulator</li>
-          <li><strong>[EXPERIENCE]</strong> CyberSec Student – NSCC</li>
-          <li><strong>[SKILLS]</strong> C, Python, Networking, Linux</li>
-          <li><strong>[CONTACT]</strong> niedzielski.colby@example.com</li>
-        </ul>
+      <div class="bg-black p-4 border border-gray-700 rounded shadow">
+        <img src="https://via.placeholder.com/600x300?text=350Z+FBO" alt="Nissan 350Z" class="w-full mb-4">
+        <h3 class="text-xl font-bold">Nissan 350Z – FBO</h3>
+        <p class="text-gray-400">Clean Z33 with full bolt-ons, aggressive stance, and street attitude.</p>
       </div>
     </div>
-  </div>
+  </section>
 
-  <script src="script.js"></script>
+  <!-- Booking Section -->
+  <section id="book" class="py-12 px-4">
+    <h2 class="text-2xl uppercase jdm-accent text-center mb-10">Book a Repair</h2>
+    <form class="max-w-2xl mx-auto bg-gray-800 p-6 rounded">
+      <label class="block mb-4">
+        <span class="block mb-1 uppercase text-sm">Name</span>
+        <input type="text" class="w-full bg-black border border-gray-600 p-2" placeholder="Your name" />
+      </label>
+      <label class="block mb-4">
+        <span class="block mb-1 uppercase text-sm">Email</span>
+        <input type="email" class="w-full bg-black border border-gray-600 p-2" placeholder="you@example.com" />
+      </label>
+      <label class="block mb-4">
+        <span class="block mb-1 uppercase text-sm">Vehicle Info</span>
+        <input type="text" class="w-full bg-black border border-gray-600 p-2" placeholder="Make, Model, Year" />
+      </label>
+      <label class="block mb-6">
+        <span class="block mb-1 uppercase text-sm">Service Needed</span>
+        <textarea class="w-full bg-black border border-gray-600 p-2" rows="4" placeholder="Describe the issue or service you need..."></textarea>
+      </label>
+      <button class="bg-white text-black px-6 py-2 uppercase font-bold hover:bg-gray-300 transition">Submit</button>
+    </form>
+  </section>
+
+  <!-- Merch Shop -->
+  <section class="py-12 px-4 bg-gray-900" id="shop">
+    <h2 class="text-2xl uppercase jdm-accent text-center mb-10">Shop</h2>
+    <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+      <div class="bg-black border border-gray-700 p-4 rounded text-center">
+        <img src="https://via.placeholder.com/300x200?text=Guidos+Garage+Tee" alt="T-Shirt" class="mb-4 w-full">
+        <h3 class="font-bold mb-1">Guidos Garage T-Shirt</h3>
+        <p class="text-gray-400 mb-2">$25.00</p>
+        <button class="border px-4 py-2 hover:bg-white hover:text-black transition uppercase text-sm">Add to Cart</button>
+      </div>
+      <div class="bg-black border border-gray-700 p-4 rounded text-center">
+        <img src="https://via.placeholder.com/300x200?text=Slap+Sticker" alt="Sticker" class="mb-4 w-full">
+        <h3 class="font-bold mb-1">Slap Stickers (5-Pack)</h3>
+        <p class="text-gray-400 mb-2">$10.00</p>
+        <button class="border px-4 py-2 hover:bg-white hover:text-black transition uppercase text-sm">Add to Cart</button>
+      </div>
+      <!-- Add more merch here -->
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="text-center py-6 border-t border-gray-700 text-gray-500">
+    <p>© 2025 Guidos Garage • Sydney, NS • All Rights Reserved</p>
+    <p class="mt-2 text-xs">IG: @guidosgarage | Email: info@guidosgarage.ca</p>
+  </footer>
+
 </body>
 </html>
